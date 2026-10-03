@@ -598,24 +598,26 @@ function listaCal(items,conTorneo,t){
   });
   return out;
 }
+function incontriFase(t,fase){
+  if(/^Girone /.test(fase)){const g=LETTERE.indexOf(fase.slice(7));return t.partite.filter(m=>m.g===g).map(m=>`${nome(t,m.a)} - ${nome(t,m.b)}`);}
+  const out=[];if(t.tabellone)t.tabellone.rounds.forEach((rd,r)=>{if(tnome(t,r)===fase)rd.forEach(m=>{if(m.a!==null&&m.b!==null&&!m.bye)out.push(`${nome(t,m.a)} - ${nome(t,m.b)}`);});});
+  return out;
+}
+function optIncontri(t,fase){return `<option value="">Seleziona un incontro</option>`+incontriFase(t,fase).map(x=>`<option>${esc(x)}</option>`).join('');}
 function vistaCalendario(t){
   const cal=[...(t.calendario||[])].sort((a,b)=>(a.data+a.ora).localeCompare(b.data+b.ora));
   let form='';
   if(isOrg()){
     const fasi=[...Array(t.nGironi)].map((_,g)=>`Girone ${LETTERE[g]}`);
     if(t.tabellone)t.tabellone.rounds.forEach((rd,r)=>fasi.push(tnome(t,r)));else fasi.push('Fase finale');
-    const sugg=t.partite.map(m=>`Girone ${LETTERE[m.g]}: ${nome(t,m.a)} - ${nome(t,m.b)}`);
-    if(t.tabellone)t.tabellone.rounds.forEach((rd,r)=>rd.forEach(m=>{if(m.a!==null&&m.b!==null&&!m.bye)sugg.push(`${tnome(t,r)}: ${nome(t,m.a)} - ${nome(t,m.b)}`);}));
     form=`<div class="cal-form">
       <label class="w2">Data<input class="fld" type="date" id="c-data"></label>
       <label class="w2">Ora<input class="fld" type="time" id="c-ora"></label>
-      <label class="w2">Campo<input class="fld" id="c-campo" list="dl-campi" placeholder="Campo 1"></label>
+      <label class="w2">Campo<select class="fld" id="c-campo"><option value="">Seleziona il campo</option><option>Campo 1</option><option>Campo 2</option><option>Campo 3</option></select></label>
       <label class="w2">Fase<select class="fld" id="c-fase">${fasi.map(f=>`<option>${esc(f)}</option>`).join('')}</select></label>
-      <label class="w4">Incontro<input class="fld" id="c-inc" list="dl-inc" placeholder="Scrivi o scegli un incontro"></label>
+      <label class="w4">Incontro<select class="fld" id="c-inc">${optIncontri(t,fasi[0])}</select></label>
       <label class="w6">Note<input class="fld" id="c-note" placeholder="Facoltative"></label>
-      <div class="w6"><button class="btn" data-act="cal-add">Aggiungi al calendario</button></div>
-      <datalist id="dl-campi"><option>Campo 1</option><option>Campo 2</option><option>Campo 3</option></datalist>
-      <datalist id="dl-inc">${sugg.map(s=>`<option value="${esc(s)}">`).join('')}</datalist></div>`;
+      <div class="w6"><button class="btn" data-act="cal-add">Aggiungi al calendario</button></div></div>`;
   }
   return form+(cal.length?listaCal(cal,false,t):`<div class="vuoto"><strong>Calendario vuoto</strong><p class="giust">${isOrg()?'Aggiungi la prima partita con il modulo qui sopra.':'Le date delle partite saranno pubblicate qui dagli organizzatori.'}</p></div>`);
 }
@@ -724,7 +726,9 @@ document.addEventListener('click',async ev=>{
 });
 
 document.addEventListener('change',async ev=>{
-  const el=ev.target;const ch=el.dataset&&el.dataset.ch;if(!ch)return;const t=cur();
+  const el=ev.target;
+  if(el&&el.id==='c-fase'){const ti=cur(),inc=document.getElementById('c-inc');if(ti&&inc)inc.innerHTML=optIncontri(ti,el.value);return;}
+const ch=el.dataset&&el.dataset.ch;if(!ch)return;const t=cur();
   if(ch==='set'){
     const v=el.value.replace(/\D/g,'').slice(0,2);let m;
     if(el.dataset.k==='g')m=t.partite.find(x=>x.id==el.dataset.m);
