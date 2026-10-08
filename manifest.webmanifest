@@ -1,0 +1,14 @@
+{
+  "name": "Galli Winter Cup",
+  "short_name": "GWC",
+  "description": "Tornei, gironi, risultati e calendario della Galli Winter Cup - Tennis & Padel Club Bagni di Lucca",
+  "start_url": "./",
+  "scope": "./",
+  "display": "standalone",
+  "background_color": "#22509E",
+  "theme_color": "#22509E",
+  "icons": [
+    {"src": "icon-192.png", "sizes": "192x192", "type": "image/png", "purpose": "any maskable"},
+    {"src": "icon-512.png", "sizes": "512x512", "type": "image/png", "purpose": "any maskable"}
+  ]
+}
