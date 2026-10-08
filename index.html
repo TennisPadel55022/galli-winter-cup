@@ -222,6 +222,9 @@ main{max-width:1180px;margin:0 auto;padding:22px 18px 60px}
 <body>
 <div id="app"></div>
 <div id="toast" class="toast"></div>
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-auth-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore-compat.js"></script>
 <script>
 /* ============================================================
    CONFIGURAZIONE
@@ -249,9 +252,9 @@ const ICON={
    ARCHIVIO CONDIVISO
 ============================================================ */
 /* ===== FIREBASE: incolla qui i valori di firebaseConfig (Console Firebase > Impostazioni progetto > Le tue app) ===== */
-const FIREBASE_CONFIG={apiKey:"",authDomain:"",projectId:"",storageBucket:"",messagingSenderId:"",appId:""};
+const FIREBASE_CONFIG={apiKey:"AIzaSyAzaRoj9Vlgs8tdLWZtrnru_v0cQcl9GoA",authDomain:"galli-winter-cup.firebaseapp.com",projectId:"galli-winter-cup",storageBucket:"galli-winter-cup.firebasestorage.app",messagingSenderId:"930787492925",appId:"1:930787492925:web:ef1316d88a15c7c9499654"};
 const FB_OK=!!(FIREBASE_CONFIG.apiKey&&FIREBASE_CONFIG.projectId&&typeof firebase!=='undefined');
-const DEMO=true; /* true = versione di prova: accesso simulato (password «prova») e dati solo in memoria */
+const DEMO=false; /* true = versione di prova: accesso simulato (password «prova») e dati solo in memoria */
 const memDemo={};
 const HAS_STORAGE=FB_OK;
 let DB=null,AUTH=null;
@@ -750,7 +753,7 @@ async function doLogin(){
 }
 
 (async()=>{render();initFirebase();await carica();S.pronto=true;render();
-  setInterval(()=>{if(!DEMO&&!S.sess&&!S.modal){carica().then(render);}},60000);})();
+  setInterval(()=>{if(!DEMO&&!S.sess&&!S.modal&&document.visibilityState==='visible'){carica().then(render);}},180000);})();
 </script>
 </body>
 </html>
