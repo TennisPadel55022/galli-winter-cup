@@ -232,11 +232,11 @@ const LETTERE='ABCDEFGH';
 const TORNEI_DEF=[
   {id:'doppio-silver',nome:'Doppio Silver',n:8,tipo:'doppio',livello:'silver'},
   {id:'doppio-gold',nome:'Doppio Gold',n:8,tipo:'doppio',livello:'gold'},
-  {id:'principianti-senior',nome:'Principianti Senior',n:9,tipo:'principianti',livello:'senior'},
+  {id:'principianti-senior',nome:'Principianti Senior',n:10,tipo:'principianti',livello:'senior'},
   {id:'principianti-junior',nome:'Principianti Junior',n:9,tipo:'principianti',livello:'junior'},
   {id:'top',nome:'Top',n:12,tipo:'top',livello:'top'},
-  {id:'intermedio-silver',nome:'Intermedio Silver',n:10,tipo:'intermedio',livello:'silver'},
-  {id:'intermedio-gold',nome:'Intermedio Gold',n:15,tipo:'intermedio',livello:'gold'}
+  {id:'intermedio-silver',nome:'Intermedio Silver',n:12,tipo:'intermedio',livello:'silver'},
+  {id:'intermedio-gold',nome:'Intermedio Gold',n:16,tipo:'intermedio',livello:'gold'}
 ];
 const ICON={
   doppio:`<svg viewBox="0 0 64 64" fill="none" stroke="currentColor" stroke-width="4" stroke-linecap="round"><ellipse cx="20" cy="20" rx="11" ry="14" transform="rotate(-35 20 20)"/><line x1="27" y1="31" x2="40" y2="50"/><ellipse cx="44" cy="20" rx="11" ry="14" transform="rotate(35 44 20)"/><line x1="37" y1="31" x2="24" y2="50"/><circle cx="32" cy="56" r="5" fill="currentColor" stroke="none"/></svg>`,
@@ -289,7 +289,7 @@ function nome(t,id){if(id===null||id===undefined)return 'Da definire';const p=t.
 function membri(t,g){return t.partecipanti.filter(p=>t.assegnazione[p.id]===g).map(p=>p.id);}
 function gironiDefault(n){return n<=8?2:n<=12?3:4;}
 
-const SEEDS={"doppio-silver": {"nomi": ["Cinelli-Barinci", "Rugani-Giannecchini", "Poli-Pellegrini", "Prata-De Nuccio", "Panattoni-Rossi", "Morar-Reggianini", "Guazzini-Liguori", "Pardini-Lelli"], "gruppi": [0, 1, 1, 1, 0, 0, 1, 0], "nGironi": 2, "qualificati": 3}, "doppio-gold": {"nomi": ["Ricci-Martelli", "Pierantoni-Golia", "Biagiotti-Citti", "Salvetti-Scibetta", "Poli-Ragghianti", "Giuntoli-Tomei", "Spadoni-Libbra", "Bartolomei-Bartolomei"], "gruppi": [1, 1, 0, 0, 1, 0, 0, 1], "nGironi": 2, "qualificati": 3}, "principianti-senior": {"nomi": ["Simona Bianchi", "Paolo Nutini", "Samuele D’Abruzzo", "Francesca Borzì", "Simone Stefani", "Emilio Baroni", "Luca Martinelli", "Adrian Pach", "Cipriano Morar"], "gruppi": [1, 1, 1, 0, 0, 1, 0, 1, 0], "nGironi": 2, "qualificati": 3}, "principianti-junior": {"nomi": ["Leonardo Bacci", "Gioele Menchini", "Sara Benassi", "Filippo Paladini", "Tommaso Pistolozzi", "Rebecca Bianchi", "Samuele Franceschi", "Valentino Bianchi", "Giacomo Marchi"], "gruppi": [0, 1, 1, 1, 0, 0, 1, 0, 0], "nGironi": 2, "qualificati": 3}, "top": {"nomi": ["Lorenzo Poli", "Michele Pieroni", "Davide Lucchesi", "Nicola Salvini", "Matteo Ciampi", "Francesco Scibetta", "Tommaso Salvetti", "Denis Tolari", "Roberto Suffredini", "Giovanni Pallai", "Marco Bartolomei", "Filippo Giannasi"], "gruppi": [1, 2, 1, 2, 2, 1, 0, 2, 0, 0, 1, 0], "nGironi": 3, "qualificati": 3}, "intermedio-silver": {"nomi": ["Chiara Fontanini", "Sofia Cecchini", "Francesco Giovannini", "Antonio Rossi", "Matilde Galli", "Nicoletta Prata", "Debora De Nuccio", "Andrea Lucchesi", "Edoardo Zerbini", "Matteo Bianucci"], "gruppi": [1, 1, 0, 0, 0, 1, 0, 0, 1, 1], "nGironi": 2, "qualificati": 4}, "intermedio-gold": {"nomi": ["Simone Lelli", "Maurizio Bartolomei", "Nicola Pardini", "Fabio Quintavalli", "Simone Ragghianti", "Joe Tyler", "Gianluca Frigo", "Andrea Nieri", "Simone Cecchini", "Stefano Bertini", "Gabriele Cecchini", "Francesco Angelini", "Federico Ghilardi", "Marco Bottalico", "Stefano Miglianti"], "gruppi": [0, 3, 1, 2, 1, 3, 3, 0, 1, 0, 2, 2, 0, 2, 1], "nGironi": 4, "qualificati": 2}};
+const SEEDS={"doppio-silver": {"nomi": ["Cinelli-Barinci", "Rugani-Giannecchini", "Poli-Pellegrini", "Prata-De Nuccio", "Panattoni-Rossi", "Morar-Reggianini", "Guazzini-Liguori", "Pardini-Lelli"], "gruppi": [0, 1, 1, 1, 0, 0, 1, 0], "nGironi": 2, "qualificati": 3}, "doppio-gold": {"nomi": ["Ricci-Martelli", "Pierantoni-Golia", "Biagiotti-Citti", "Salvetti-Scibetta", "Poli-Ragghianti", "Giuntoli-Tomei", "Spadoni-Libbra", "Bartolomei-Bartolomei"], "gruppi": [1, 1, 0, 0, 1, 0, 0, 1], "nGironi": 2, "qualificati": 3}, "principianti-senior": {"nomi": ["Simona Bianchi", "Paolo Nutini", "Samuele D’Abruzzo", "Francesca Borzì", "Simone Stefani", "Emilio Baroni", "Luca Martinelli", "Adrian Pach", "Cipriano Morar", "Antonio Bianchi"], "gruppi": [1, 1, 1, 0, 0, 1, 0, 1, 0, 0], "nGironi": 2, "qualificati": 4}, "principianti-junior": {"nomi": ["Leonardo Bacci", "Gioele Menchini", "Sara Benassi", "Filippo Paladini", "Tommaso Pistolozzi", "Rebecca Bianchi", "Samuele Franceschi", "Valentino Bianchi", "Giacomo Marchi"], "gruppi": [0, 1, 1, 1, 0, 0, 1, 0, 0], "nGironi": 2, "qualificati": 3}, "top": {"nomi": ["Lorenzo Poli", "Michele Pieroni", "Davide Lucchesi", "Caterina Tonarelli", "Matteo Biagiotti", "Francesco Scibetta", "Tommaso Salvetti", "Denis Tolari", "Roberto Suffredini", "Giovanni Pallai", "Marco Bartolomei", "Filippo Giannasi"], "gruppi": [1, 2, 1, 2, 2, 1, 0, 2, 0, 0, 1, 0], "nGironi": 3, "qualificati": 3}, "intermedio-silver": {"nomi": ["Chiara Fontanini", "Sofia Cecchini", "Francesco Giovannini", "Antonio Rossi", "Matilde Galli", "Nicoletta Prata", "Debora De Nuccio", "Andrea Lucchesi", "Edoardo Zerbini", "Matteo Bianucci", "Tommaso Bravi", "Luca Maggiore"], "gruppi": [2, 2, 1, 0, 0, 1, 0, 1, 2, 2, 0, 1], "nGironi": 3, "qualificati": 3}, "intermedio-gold": {"nomi": ["Simone Lelli", "Maurizio Bartolomei", "Nicola Pardini", "Fabio Quintavalli", "Simone Ragghianti", "Joe Tyler", "Gianluca Frigo", "Andrea Nieri", "Simone Cecchini", "Stefano Bertini", "Gabriele Cecchini", "Francesco Angelini", "Federico Ghilardi", "Marco Bottalico", "Stefano Miglianti", "Nicola Salvini"], "gruppi": [0, 3, 1, 2, 1, 3, 3, 0, 1, 0, 2, 2, 0, 2, 1, 3], "nGironi": 4, "qualificati": 2}};
 function nuovoTorneoDaSeed(d,sd){
   const t={id:d.id,partecipanti:sd.nomi.map((n,i)=>({id:i+1,nome:n})),nGironi:sd.nGironi,qualificati:sd.qualificati,assegnazione:{},partite:[],tabellone:null,calendario:[],stato:'setup',agg:0,prossimoId:sd.nomi.length+1};
   sd.gruppi.forEach((g,i)=>{t.assegnazione[i+1]=g;});
@@ -350,6 +350,7 @@ function nomeTurno(n){return {16:'Sedicesimi di finale',8:'Ottavi di finale',4:'
 function infoFase(t){
   let Q=0;for(let g=0;g<t.nGironi;g++)Q+=Math.min(t.qualificati,membri(t,g).length);
   if(Q<2)return {Q,txt:'Servono almeno 2 qualificati per la fase finale.'};
+  if((t.id==='top'||t.id==='intermedio-silver')&&t.nGironi===3&&t.qualificati===3&&Q===9)return {Q,S:16,txt:'9 qualificati: un ottavo di finale tra le due peggiori terze classificate, poi quarti con 8 squadre.'};
   let S2=2;while(S2<Q)S2*=2;const bye=S2-Q;
   return {Q,S:S2,txt:`${Q} qualificati: la fase finale parte ${({1:'dalla',2:'dalle',4:'dai',8:'dagli',16:'dai'})[S2/2]||'da'} ${nomeTurno(S2/2).toLowerCase().replace(' di finale','')}${bye?` con ${bye} passaggi${bye===1?'o':''} dirett${bye===1?'o':'i'} al turno successivo`:''}.`};
 }
@@ -385,24 +386,7 @@ function generaTabelloneGold(t){
   const mk=n=>Array.from({length:n},()=>({a:null,b:null,set:vuoti(),vinc:null}));
   t.tabellone={rounds:[r0,mk(2),mk(1)]};propaga(t);t.stato='finale';return true;
 }
-/* Intermedio Silver: 3 gironi, passano i primi 2 (6 qualificati). Le 2 migliori prime vanno in semifinale;
-   la terza prima e le 3 seconde giocano 2 quarti (3ª prima contro la peggiore seconda, 1ª seconda contro 2ª seconda). */
-function generaTabelloneSilver(t){
-  const {cls,out}=statNorm(t);
-  if(cls.some(c=>c.length<2))return false;
-  const W=cls.map(c=>out[c[0].id]).sort(cmpN),S=cls.map(c=>out[c[1].id]).sort(cmpN);
-  const D=[W[0],W[1]],O=[S[0],S[1],W[2],S[2]];
-  let best=null,bc=1e9;
-  permutazioni(4).forEach(p=>{let c=0;
-    if(O[p[0]].g===O[p[1]].g)c+=100;if(O[p[2]].g===O[p[3]].g)c+=100;
-    [p[0],p[1]].forEach(i=>{if(O[i].g===D[0].g)c+=10;});[p[2],p[3]].forEach(i=>{if(O[i].g===D[1].g)c+=10;});
-    p.forEach((pi,k)=>{if(pi!==k)c++;});if(c<bc){bc=c;best=p;}});
-  const r0=[{a:O[best[0]].id,b:O[best[1]].id,set:vuoti(),vinc:null},{a:O[best[2]].id,b:O[best[3]].id,set:vuoti(),vinc:null}];
-  const r1=[{a:null,b:null,fa:D[0].id,ob:0,set:vuoti(),vinc:null},{a:null,b:null,fa:D[1].id,ob:1,set:vuoti(),vinc:null}];
-  t.tabellone={rounds:[r0,r1,[{a:null,b:null,set:vuoti(),vinc:null}]],custom:true,nomi:['Quarti di finale','Semifinali','Finale']};
-  propaga(t);t.stato='finale';return true;
-}
-/* Top: 3 gironi da 4, passano i primi 3 (9 qualificati). Le 2 peggiori terze giocano l'ottavo di finale;
+/* Top e Intermedio Silver: 3 gironi da 4, passano i primi 3 (9 qualificati). Le 2 peggiori terze giocano l'ottavo di finale;
    la vincente entra nei quarti con le altre 7 (3 prime, 3 seconde, migliore terza). */
 function generaTabelloneTop(t){
   const cls=[0,1,2].map(g=>classifica(t,g));
@@ -427,9 +411,8 @@ function generaTabelloneTop(t){
   propaga(t);t.stato='finale';return true;
 }
 function generaTabellone(t){
-  if(t.id==='top'&&t.nGironi===3&&t.qualificati===3)return generaTabelloneTop(t);
+  if((t.id==='top'||t.id==='intermedio-silver')&&t.nGironi===3&&t.qualificati===3)return generaTabelloneTop(t);
   if(t.id==='intermedio-gold'&&t.nGironi===4&&t.qualificati===2)return generaTabelloneGold(t);
-  if(t.id==='intermedio-silver'&&t.nGironi===3&&t.qualificati===2)return generaTabelloneSilver(t);
   const q=[];
   for(let pos=0;pos<t.qualificati;pos++)for(let g=0;g<t.nGironi;g++){const c=classifica(t,g);if(c[pos])q.push(c[pos].id);}
   const Q=q.length;if(Q<2)return false;
