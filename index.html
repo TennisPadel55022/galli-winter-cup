@@ -238,13 +238,13 @@ const LOGO_GALLI='data:image/webp;base64,UklGRmxPAABXRUJQVlA4WAoAAAAQAAAAPwEAPwE
 const KEY_T='torneo-', KEY_U='organizzatori';
 const LETTERE='ABCDEFGH';
 const TORNEI_DEF=[
-  {id:'doppio-silver',nome:'Doppio Silver',n:8,tipo:'doppio',livello:'silver'},
-  {id:'doppio-gold',nome:'Doppio Gold',n:8,tipo:'doppio',livello:'gold'},
+  {id:'top',nome:'Top',n:12,tipo:'top',livello:'top'},
+  {id:'intermedio-gold',nome:'Intermedio Gold',n:16,tipo:'intermedio',livello:'gold'},
+  {id:'intermedio-silver',nome:'Intermedio Silver',n:12,tipo:'intermedio',livello:'silver'},
   {id:'principianti-senior',nome:'Principianti Senior',n:10,tipo:'principianti',livello:'senior'},
   {id:'principianti-junior',nome:'Principianti Junior',n:9,tipo:'principianti',livello:'junior'},
-  {id:'top',nome:'Top',n:12,tipo:'top',livello:'top'},
-  {id:'intermedio-silver',nome:'Intermedio Silver',n:12,tipo:'intermedio',livello:'silver'},
-  {id:'intermedio-gold',nome:'Intermedio Gold',n:16,tipo:'intermedio',livello:'gold'}
+  {id:'doppio-gold',nome:'Doppio Gold',n:8,tipo:'doppio',livello:'gold'},
+  {id:'doppio-silver',nome:'Doppio Silver',n:8,tipo:'doppio',livello:'silver'}
 ];
 const ICON={
   doppio:`<svg viewBox="0 0 64 64" fill="none" stroke="currentColor" stroke-width="4" stroke-linecap="round"><ellipse cx="20" cy="20" rx="11" ry="14" transform="rotate(-35 20 20)"/><line x1="27" y1="31" x2="40" y2="50"/><ellipse cx="44" cy="20" rx="11" ry="14" transform="rotate(35 44 20)"/><line x1="37" y1="31" x2="24" y2="50"/><circle cx="32" cy="56" r="5" fill="currentColor" stroke="none"/></svg>`,
@@ -266,6 +266,7 @@ let DB=null,AUTH=null;
 function initFirebase(){
   if(!FB_OK)return;
   firebase.initializeApp(FIREBASE_CONFIG);DB=firebase.firestore();AUTH=firebase.auth();
+  try{AUTH.setPersistence(firebase.auth.Auth.Persistence.LOCAL).catch(()=>{});}catch(e){}
   AUTH.onAuthStateChanged(u=>{S.sess=u?{u:u.email}:null;if(S.pronto)render();});
 }
 async function sGet(key){
@@ -503,6 +504,36 @@ function footer(){
   </div></footer>`;
 }
 
+/* ===== Esportazione dati (solo organizzatori) ===== */
+function scaricaFile(nomeFile,contenuto,tipo){
+  const file=new File([contenuto],nomeFile,{type:tipo});
+  const mobile=/Android|iPhone|iPad|iPod/i.test(navigator.userAgent);
+  if(mobile&&navigator.canShare&&navigator.canShare({files:[file]})&&navigator.share){
+    navigator.share({files:[file],title:nomeFile}).catch(()=>{});return;
+  }
+  const u=URL.createObjectURL(file),a=document.createElement('a');
+  a.href=u;a.download=nomeFile;document.body.appendChild(a);a.click();
+  setTimeout(()=>{a.remove();URL.revokeObjectURL(u);},1500);
+}
+function dataFile(){const d=new Date(),p=n=>String(n).padStart(2,'0');return `${d.getFullYear()}-${p(d.getMonth()+1)}-${p(d.getDate())}_${p(d.getHours())}${p(d.getMinutes())}`;}
+function datiJSON(){
+  return JSON.stringify({applicazione:'Galli Winter Cup',esportato:new Date().toISOString(),tornei:TORNEI_DEF.map(d=>S.tornei[d.id])},null,1);
+}
+function datiCSV(){
+  const q=v=>'"'+String(v==null?'':v).replace(/"/g,'""')+'"';
+  const it=d=>{const m=/^(\d{4})-(\d{2})-(\d{2})$/.exec(d||'');return m?`${m[3]}/${m[2]}/${m[1]}`:(d||'');};
+  const sc=set=>[0,1,2].map(i=>{const x=(set&&set[i])||['',''];return (x[0]===''||x[1]===''||x[0]==null||x[1]==null)?'':`${x[0]}–${x[1]}`;});
+  const righe=[['Torneo','Tipo','Fase','Incontro','Set 1','Set 2','Set 3','Vincitore','Data','Ora','Campo','Note']];
+  TORNEI_DEF.forEach(d=>{
+    const t=S.tornei[d.id];
+    const riga=(fase,m)=>{const e=esito(m.set);return [d.nome,'Partita',fase,`${nome(t,m.a)} - ${nome(t,m.b)}`,...sc(m.set),e.vinc==='a'?nome(t,m.a):e.vinc==='b'?nome(t,m.b):'','','','',''];};
+    t.partite.forEach(m=>righe.push(riga('Girone '+LETTERE[m.g],m)));
+    if(t.tabellone)t.tabellone.rounds.forEach((rd,r)=>rd.forEach(m=>{if(m.a!==null&&m.b!==null&&!m.bye)righe.push(riga(tnome(t,r),m));}));
+    (t.calendario||[]).slice().sort((x,y)=>((x.data||'')+(x.ora||'')).localeCompare((y.data||'')+(y.ora||''))).forEach(c=>
+      righe.push([d.nome,'In programma',c.fase||'',c.incontro||'','','','','',it(c.data),c.ora||'',c.campo||'',c.note||'']));
+  });
+  return '\ufeff'+righe.map(r=>r.map(q).join(';')).join('\r\n');
+}
 function home(){
   const cards=TORNEI_DEF.map(d=>{const t=S.tornei[d.id],st=stato(t),u=unita(t);
     return `<button class="tcard liv-${d.livello}" data-act="apri" data-id="${d.id}">
@@ -520,7 +551,10 @@ function home(){
     </section>
     <h2 class="sez">I tornei</h2><div class="grid-t">${cards}</div>
     <h2 class="sez">Prossime partite</h2>
-    ${prossime.length?listaCal(prossime.slice(0,10),true):`<div class="vuoto"><strong>Nessuna partita in programma</strong><p class="giust">Le partite compariranno qui appena gli organizzatori le inseriranno nel calendario dei tornei.</p></div>`}`;
+    ${prossime.length?listaCal(prossime.slice(0,10),true):`<div class="vuoto"><strong>Nessuna partita in programma</strong><p class="giust">Le partite compariranno qui appena gli organizzatori le inseriranno nel calendario dei tornei.</p></div>`}
+    ${isOrg()?`<h2 class="sez">Copia dei dati</h2>
+    <div class="toolbar"><button class="btn" data-act="scarica-csv">Scarica risultati e calendario (Excel)</button><button class="btn ghost" data-act="scarica-json">Scarica copia di sicurezza completa</button></div>
+    <p class="nota giust">Il file Excel (.csv) contiene tutte le partite, i risultati e il calendario di ogni torneo. La copia di sicurezza (.json) contiene tutti i dati del sito e serve per conservarli o ripristinarli.</p>`:''}`;
 }
 
 function torneo(){
@@ -640,9 +674,10 @@ function vistaImpostazioni(t){
 function modal(){
   if(S.modal==='login')return `<div class="ov" data-act="chiudi-ov"><div class="mod" role="dialog" aria-label="Accesso organizzatori">
     <h2>Accesso organizzatori</h2>${S.err?`<div class="err">${esc(S.err)}</div>`:''}
-    <input class="fld" id="l-u" type="email" placeholder="Email" autocomplete="username">
-    <input class="fld" id="l-p" type="password" placeholder="Password" autocomplete="current-password">
-    <div class="row"><button class="btn ghost" data-act="chiudi">Annulla</button><button class="btn" data-act="do-login">Accedi</button></div>
+    <form id="f-login" method="post" action="#" autocomplete="on">
+    <input class="fld" id="l-u" name="email" type="email" placeholder="Email" autocomplete="username" value="${esc(S.lastEmail||'')}">
+    <input class="fld" id="l-p" name="password" type="password" placeholder="Password" autocomplete="current-password">
+    <div class="row"><button class="btn ghost" type="button" data-act="chiudi">Annulla</button><button class="btn" type="submit">Accedi</button></div></form>
     <p class="nota giust">Solo gli organizzatori possono inserire risultati, date e orari. Tutti gli altri visitatori vedono i dati in sola lettura.</p></div></div>`;
   if(S.modal==='utenti')return `<div class="ov" data-act="chiudi-ov"><div class="mod" role="dialog" aria-label="Organizzatori">
     <h2>Organizzatori</h2><ul class="ulist">${S.utenti.map(u=>`<li><span>${esc(u.u)}${u.admin?' (amministratore)':''}</span>${u.u!==S.sess.u?`<button class="icon-btn" aria-label="Rimuovi ${esc(u.u)}" data-act="del-user" data-u="${esc(u.u)}">✕</button>`:''}</li>`).join('')}</ul>
@@ -711,6 +746,8 @@ document.addEventListener('click',async ev=>{
       t.calendario=t.calendario||[];
       t.calendario.push({id:Date.now().toString(36),data,ora:val('c-ora'),campo:val('c-campo').trim(),fase:val('c-fase'),incontro:val('c-inc').trim(),note:val('c-note').trim()});
       await salva(t);render();break;}
+    case 'scarica-csv':if(!isOrg())break;scaricaFile(`galli-winter-cup_risultati_${dataFile()}.csv`,datiCSV(),'text/csv;charset=utf-8');toast('File preparato');break;
+    case 'scarica-json':if(!isOrg())break;scaricaFile(`galli-winter-cup_copia-dati_${dataFile()}.json`,datiJSON(),'application/json');toast('File preparato');break;
     case 'cal-del':if(!confirm('Eliminare questa partita dal calendario?'))break;
       t.calendario=t.calendario.filter(c=>c.id!==el.dataset.id);await salva(t);render();break;
   }
@@ -740,13 +777,13 @@ const ch=el.dataset&&el.dataset.ch;if(!ch)return;const t=cur();
   }
 });
 
+document.addEventListener('submit',ev=>{if(ev.target&&ev.target.id==='f-login'){ev.preventDefault();doLogin();}});
 document.addEventListener('keydown',ev=>{
-  if(ev.key==='Enter'&&S.modal==='login'&&(ev.target.id==='l-p'||ev.target.id==='l-u'))doLogin();
   if(ev.key==='Escape'&&S.modal){S.modal=null;render();}
 });
 
 async function doLogin(){
-  const u=val('l-u').trim(),p=val('l-p');
+  const u=val('l-u').trim(),p=val('l-p');S.lastEmail=u;
   if(!u||!p){S.err='Inserisci email e password.';render();return;}
   if(DEMO){if(p!=='prova'){S.err='Versione di prova: usa la password «prova».';render();return;}S.sess={u:u};S.modal=null;S.err='';render();toast('Accesso di prova effettuato');return;}
   try{await AUTH.signInWithEmailAndPassword(u,p);S.modal=null;S.err='';render();toast('Accesso effettuato');}
