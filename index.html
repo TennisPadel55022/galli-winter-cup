@@ -227,6 +227,7 @@ main{max-width:1180px;margin:0 auto;padding:22px 18px 60px}
 <body>
 <div id="app"></div>
 <div id="toast" class="toast"></div>
+<iframe name="pw-frame" id="pw-frame" title="" aria-hidden="true" tabindex="-1" style="display:none"></iframe>
 <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-auth-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore-compat.js"></script>
@@ -267,7 +268,7 @@ function initFirebase(){
   if(!FB_OK)return;
   firebase.initializeApp(FIREBASE_CONFIG);DB=firebase.firestore();AUTH=firebase.auth();
   try{AUTH.setPersistence(firebase.auth.Auth.Persistence.LOCAL).catch(()=>{});}catch(e){}
-  AUTH.onAuthStateChanged(u=>{S.sess=u?{u:u.email}:null;if(S.pronto)render();});
+  AUTH.onAuthStateChanged(u=>{S.sess=u?{u:u.email}:null;if(S.pronto&&!S.loggingIn)render();});
 }
 async function sGet(key){
   if(DEMO)return memDemo[key]?JSON.parse(memDemo[key]):null;
@@ -674,7 +675,7 @@ function vistaImpostazioni(t){
 function modal(){
   if(S.modal==='login')return `<div class="ov" data-act="chiudi-ov"><div class="mod" role="dialog" aria-label="Accesso organizzatori">
     <h2>Accesso organizzatori</h2>${S.err?`<div class="err">${esc(S.err)}</div>`:''}
-    <form id="f-login" method="post" action="#" autocomplete="on">
+    <form id="f-login" method="post" action="about:blank" target="pw-frame" autocomplete="on">
     <input class="fld" id="l-u" name="email" type="email" placeholder="Email" autocomplete="username" value="${esc(S.lastEmail||'')}">
     <input class="fld" id="l-p" name="password" type="password" placeholder="Password" autocomplete="current-password">
     <div class="row"><button class="btn ghost" type="button" data-act="chiudi">Annulla</button><button class="btn" type="submit">Accedi</button></div></form>
@@ -786,8 +787,17 @@ async function doLogin(){
   const u=val('l-u').trim(),p=val('l-p');S.lastEmail=u;
   if(!u||!p){S.err='Inserisci email e password.';render();return;}
   if(DEMO){if(p!=='prova'){S.err='Versione di prova: usa la password «prova».';render();return;}S.sess={u:u};S.modal=null;S.err='';render();toast('Accesso di prova effettuato');return;}
-  try{await AUTH.signInWithEmailAndPassword(u,p);S.modal=null;S.err='';render();toast('Accesso effettuato');}
+  S.loggingIn=true;
+  try{
+    await AUTH.signInWithEmailAndPassword(u,p);
+    /* invio "reale" del modulo in un frame nascosto (verso about:blank, nessun dato esce dal telefono):
+       serve perché iPhone/Android propongano di salvare la password nel portachiavi */
+    try{const f=document.getElementById('f-login');if(f)f.submit();}catch(x){}
+    await new Promise(r=>setTimeout(r,700));
+    S.loggingIn=false;S.modal=null;S.err='';render();toast('Accesso effettuato');
+  }
   catch(e){
+    S.loggingIn=false;
     const c=e&&e.code||'';
     S.err=(c==='auth/too-many-requests')?'Troppi tentativi: riprova tra qualche minuto.':(c==='auth/network-request-failed')?'Connessione non disponibile.':'Email o password non corrette.';
     render();
